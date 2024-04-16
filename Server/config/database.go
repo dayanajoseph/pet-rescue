@@ -3,7 +3,7 @@ package config
 import (
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
-    "Server/models"
+    //"Server/models"
 )
 
 func SetupDatabaseConnection() *gorm.DB {
