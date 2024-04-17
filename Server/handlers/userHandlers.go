@@ -39,8 +39,7 @@ func SignInHandler(c *gin.Context) {
 	if result.Error != nil || result.RowsAffected == 0 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Incorrect credentials"})
 		return
-	} 
-
+	}
 
 	// Check if the provided password matches the stored password
 	if foundUser.Password != user.Password {

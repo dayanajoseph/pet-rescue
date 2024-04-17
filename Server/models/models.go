@@ -24,6 +24,7 @@ type Pet struct {
 	Age      int    `json:"age"`
 	Image    string `json:"image"` //
 	Location string `json:"location"`
+	Status 	string `json:"status"`
 }
 
 type Volunteer struct {
