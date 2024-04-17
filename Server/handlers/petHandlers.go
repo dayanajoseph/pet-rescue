@@ -1,7 +1,7 @@
 package handlers
 import(
     "net/http"
-    "Server/models"
+    "pet-rescue/models"
     "github.com/gin-gonic/gin"
     "gorm.io/gorm"
 )

@@ -7,7 +7,7 @@ import (
 type User struct {
     gorm.Model
     Name     string
-    Email    string `gorm:"unique"`
+    Email string `gorm:"type:varchar(255);uniqueIndex"` 
     Password string
 }
 
@@ -22,5 +22,5 @@ type Pet struct {
 type Volunteer struct {
     gorm.Model
     Name  string
-    Email string
+    Email string `gorm:"type:varchar(255);uniqueIndex"` 
 }

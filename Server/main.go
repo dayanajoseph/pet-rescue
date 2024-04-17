@@ -1,12 +1,12 @@
 package main
 
 import (
-	"Server/config"
-	"Server/handlers"
+	"pet-rescue/config"
+	"pet-rescue/handlers"
 	"time"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+    "net/http"
 )
 
 func main() {
@@ -25,6 +25,12 @@ func main() {
         MaxAge: 12 * time.Hour,
     }))
 
+    // Define a handler for the root URL
+    r.GET("/", func(c *gin.Context) {
+        c.JSON(http.StatusOK, gin.H{
+            "message": "Welcome to the Pet Rescue API!",
+        })
+    })
 
     db := config.SetupDatabaseConnection()
     r.Use(func(c *gin.Context) {
@@ -42,6 +48,6 @@ func main() {
     // Volunteer routes
     r.GET("/volunteers", handlers.VolunteersHandler)
 
-    r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+    r.Run(":8001") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
-.const
+
