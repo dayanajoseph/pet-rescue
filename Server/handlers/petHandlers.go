@@ -79,9 +79,3 @@ func DeletePetHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": "Pet deleted successfully"})
 }
 
-func VolunteersHandler(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-	var volunteers []models.Volunteer
-	db.Find(&volunteers)
-	c.JSON(http.StatusOK, volunteers)
-}

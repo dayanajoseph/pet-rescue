@@ -48,11 +48,11 @@ func main() {
 	r.GET("/pets", handlers.PetsHandler)
 	r.PUT("/pets/:id", handlers.UpdatePetHandler)
 	r.DELETE("/pets/:id", handlers.DeletePetHandler)
-	r.GET("/volunteers", handlers.VolunteersHandler)
+	r.GET("/users", handlers.VolunteersHandler)
 
 	// Start the server in a goroutine to allow for graceful shutdown
 	go func() {
-		if err := r.Run(":8012"); err != nil && err != http.ErrServerClosed {
+		if err := r.Run(":9000"); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("fail to start server: %v", err)
 		}
 	}()

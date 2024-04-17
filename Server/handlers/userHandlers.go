@@ -51,3 +51,10 @@ func SignInHandler(c *gin.Context) {
 	// Successful authentication, respond with user details
 	c.JSON(http.StatusOK, foundUser)
 }
+
+func VolunteersHandler(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	var user []models.User
+	db.Find(&user)
+	c.JSON(http.StatusOK, user)
+}
