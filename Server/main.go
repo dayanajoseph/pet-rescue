@@ -52,7 +52,7 @@ func main() {
 
 	// Start the server in a goroutine to allow for graceful shutdown
 	go func() {
-		if err := r.Run(":8011"); err != nil && err != http.ErrServerClosed {
+		if err := r.Run(":8012"); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("fail to start server: %v", err)
 		}
 	}()

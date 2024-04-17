@@ -21,7 +21,7 @@ const SignUp = () => {
     event.preventDefault(); // Prevent the form from refreshing the page
     try {
    
-      const response = await axios.post('http://localhost:8011/signup', formData);
+      const response = await axios.post('http://localhost:8012/signup', formData);
       console.log('Signup successful:', response.data);
       // Handle response and possibly redirect user or clear form
     } catch (error) {
