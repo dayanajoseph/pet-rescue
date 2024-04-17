@@ -1,53 +1,69 @@
 package main
 
 import (
-	"pet-rescue/config"
-	"pet-rescue/handlers"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-    "net/http"
+
+	"pet-rescue/config"
+	"pet-rescue/handlers"
 )
 
 func main() {
-    r := gin.Default()
+	r := gin.Default()
 
-	// Configure CORS
-    r.Use(cors.New(cors.Config{
-        AllowOrigins:     []string{"http://localhost:3000"},
-        AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-        AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
-        ExposeHeaders:    []string{"Content-Length"},
-        AllowCredentials: true,
-        AllowOriginFunc: func(origin string) bool {
-            return origin == "http://localhost:3000" 
-        },
-        MaxAge: 12 * time.Hour,
-    }))
+	// Configure CORS for cross-origin requests from frontend
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Adjust this to match your frontend
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
-    // Define a handler for the root URL
-    r.GET("/", func(c *gin.Context) {
-        c.JSON(http.StatusOK, gin.H{
-            "message": "Welcome to the Pet Rescue API!",
-        })
-    })
+	// Set up database connection
+	db, sqlDB := config.SetupDatabaseConnection() // Retrieves *gorm.DB and *sql.DB
+	defer config.CloseDatabaseConnection(sqlDB)   // Ensures that the database is properly closed when the application exits
 
-    db := config.SetupDatabaseConnection()
-    r.Use(func(c *gin.Context) {
-        c.Set("db", db)
-    })
+	// Middleware to inject db instance into the context
+	r.Use(func(c *gin.Context) {
+		c.Set("db", db)
+		c.Next()
+	})
 
-    // User routes
-    r.POST("/signup", handlers.SignUpHandler)
-    r.POST("/signin", handlers.SignInHandler)
+	// Define routes
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "Welcome to the Pet Rescue API!"})
+	})
+	r.POST("/signup", handlers.SignUpHandler)
+	r.POST("/signin", handlers.SignInHandler)
+	r.POST("/report", handlers.ReportPetHandler)
+	r.GET("/pets", handlers.PetsHandler)
+	r.PUT("/pets/:id", handlers.UpdatePetHandler)
+	r.DELETE("/pets/:id", handlers.DeletePetHandler)
+	r.GET("/volunteers", handlers.VolunteersHandler)
 
-    // Pet routes
-    r.POST("/report", handlers.ReportPetHandler)
-    r.GET("/pets", handlers.PetsHandler)
+	// Start the server in a goroutine to allow for graceful shutdown
+	go func() {
+		if err := r.Run(":8011"); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("fail to start server: %v", err)
+		}
+	}()
 
-    // Volunteer routes
-    r.GET("/volunteers", handlers.VolunteersHandler)
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 5 seconds.
+	quit := make(chan os.Signal, 1)
+	// kill (no param) default sends syscall.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall.SIGKILL but can't be caught, so don't need to add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
 
-    r.Run(":8001") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
-
